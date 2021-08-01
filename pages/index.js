@@ -23,10 +23,22 @@ const Index = () => {
 
 
   const [movies, setMovies] = useState([])
-
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
   async function fetchMoviesHandler() {
+    setIsLoading(true);
+    setError(null);
+    try {
     const response = await fetch('https://swapi.dev/api/films/');
+    if (!response.ok) {
+      throw new Error('Something went wrong');
+
+    }
     const data = await response.json();
+    
+
+
+
     const transformedMovies = data.results.map((movieData) => {
           return {
             id: movieData.episode_id,
@@ -36,8 +48,27 @@ const Index = () => {
           }
         });
         setMovies(transformedMovies);
+        setIsLoading(false);
+      } catch (error) {
+        setError(error.message);
+      }
+      setIsLoading(false);
+
       };
   
+      let content = <Heading color={textColor[colorMode]}>Found no movies.</Heading>;
+
+      if (movies.length > 0) {
+        content = <MoviesList movies={movies} />;
+      } 
+      
+      if (error) {
+        content = <Heading color={textColor[colorMode]}>Error</Heading>
+      }
+      
+      if(isLoading) {
+        content = <Heading color={textColor[colorMode]}>Loading...</Heading>;
+      }
   return (
     <>
       <VStack minHeight="100vh" bg={bgColor[colorMode]}>
@@ -46,11 +77,12 @@ const Index = () => {
           align="center"
           color={textColor[colorMode]}
         >
-          Welcome to React
+          Section 14: API Creation
         </Heading>
-        
         <Button onClick={fetchMoviesHandler}>Fetch Movies? </Button>
-        <MoviesList movies={movies} />
+        <VStack pt={10}>
+        {content}
+        </VStack>
       </VStack>
     </>
   );
