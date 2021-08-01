@@ -6,9 +6,10 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import MoviesList from '../components/MoviesList';
+import AddMovie from '../components/AddMovie';
 
 const Index = () => {
-  //! this is just for dark mode...
+//! this is just for dark mode...
   const { colorMode, toggleColorMode } = useColorMode();
   const bgColor = {
     light: 'black',
@@ -18,17 +19,19 @@ const Index = () => {
     light: 'white',
     dark: 'black',
   };
-  //!
-  const [movies, setMovies] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+//!
+  
+  
+const [movies, setMovies] = useState([])
+const [isLoading, setIsLoading] = useState(false)
+const [error, setError] = useState(null)
 
 
  const fetchMoviesHandler = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-    const response = await fetch('https://swapi.dev/api/films/');
+    const response = await fetch('https://react-http-movies-post-default-rtdb.firebaseio.com/movies.json');
       if (!response.ok) {
         throw new Error('Something went wrong');
         }
@@ -54,7 +57,19 @@ const Index = () => {
   useEffect(() => {
     fetchMoviesHandler();
   }, [fetchMoviesHandler]);
-  
+
+  async function addMovieHandler(movie) {
+    const response = await fetch('https://react-http-movies-post-default-rtdb.firebaseio.com/movies.json', {
+      method: 'POST',
+      body: JSON.stringify(movie),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+  });
+  const data = await response.json();
+  console.log(data);
+}
+
       let content = <Heading color={textColor[colorMode]}>Found no movies.</Heading>;
 
       if (movies.length > 0) {
@@ -78,6 +93,7 @@ const Index = () => {
         >
           Section 14: API Creation
         </Heading>
+        <AddMovie onAddMovie={addMovieHandler} />
         <Button onClick={fetchMoviesHandler}>Fetch Movies? </Button>
         <VStack pt={10}>
         {content}
