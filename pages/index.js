@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
-  Link as ChakraLink,
+  Button,
   Heading,
   useColorMode,
   VStack,
-  Box,
-  Button,
 } from '@chakra-ui/react';
-
+import MoviesList from '../components/MoviesList';
 
 const Index = () => {
   //! this is just for dark mode...
@@ -22,20 +20,38 @@ const Index = () => {
   };
   //!
 
+
+
+  const [movies, setMovies] = useState([])
+
+  function fetchMoviesHandler() {
+    fetch('https://swapi.dev/api/films/')
+      .then(response => response.json())
+      .then(data => {
+        const transformedMovies = data.results.map(movieData => {
+          return {
+            id: movieData.episode_id,
+            title: movieData.title,
+            openingText: movieData.opening_crawl,
+            releaseDate: movieData.release_date,
+          }
+        });
+        setMovies(transformedMovies);
+      });
+  }
   return (
     <>
-      <VStack minHeight="150vh" bg={bgColor[colorMode]}>
+      <VStack minHeight="100vh" bg={bgColor[colorMode]}>
         <Heading
-          style={{ zIndex: 2 }}
           py={20}
           align="center"
-          mt={5}
           color={textColor[colorMode]}
-          fontSize="3xl"
         >
           Welcome to React
         </Heading>
         
+        <Button onClick={fetchMoviesHandler}>Fetch Movies? </Button>
+        <MoviesList movies={movies} />
       </VStack>
     </>
   );
